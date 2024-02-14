@@ -1,0 +1,95 @@
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
+
+class CreateAllTablesAndSeed extends Migration
+{
+    public function up()
+    {
+        Schema::create('courses', function (Blueprint $table) {
+            $table->id('course_id');
+            $table->string('name', 100);
+            $table->integer('total_students');
+            $table->year('batch_year');
+            $table->date('start_date');
+            $table->date('end_date');
+            $table->tinyInteger('active');
+            $table->integer('total_classes');
+            $table->timestamps();
+        });
+
+        Schema::create('students', function (Blueprint $table) {
+            $table->id('std_id');
+            $table->string('name', 100);
+            $table->string('father_name', 100)->nullable();
+            $table->string('CNIC', 15)->unique();
+            $table->string('email', 255)->unique();
+            $table->enum('gender', ['Male', 'Female']);
+            $table->string('image', 100)->nullable();
+            $table->string('contact_no', 15)->nullable();
+            $table->string('father_contactNo', 15)->nullable();
+            $table->date('DOB');
+            $table->text('address')->nullable();
+            $table->date('registration_date');
+            $table->foreignId('course_id')->constrained('courses', 'course_id');
+            $table->timestamps();
+        });
+
+        Schema::create('attendance', function (Blueprint $table) {
+            $table->foreignId('course_id')->constrained('courses', 'course_id');
+            $table->foreignId('std_id')->constrained('students', 'std_id');
+            $table->tinyInteger('P');
+            $table->date('date');
+            $table->primary(['course_id', 'std_id', 'date']);
+        });
+
+        Schema::create('exam', function (Blueprint $table) {
+            $table->foreignId('course_id')->constrained('courses', 'course_id');
+            $table->foreignId('std_id')->constrained('students', 'std_id');
+            $table->id('exam_id');
+            $table->date('date');
+            $table->integer('total_marks');
+            $table->integer('obt_marks');
+        });
+
+        Schema::create('fee', function (Blueprint $table) {
+            $table->id('fee_id');
+            $table->foreignId('course_id')->constrained('courses', 'course_id');
+            $table->foreignId('std_id')->constrained('students', 'std_id');
+            $table->decimal('Amount', 10, 2);
+            $table->tinyInteger('paid');
+            $table->date('date');
+        });
+
+        // Seed data
+        DB::table('courses')->insert([
+            // Insert course records here
+        ]);
+
+        DB::table('students')->insert([
+            // Insert student records here
+        ]);
+
+        DB::table('attendance')->insert([
+            // Insert attendance records here
+        ]);
+
+        DB::table('exam')->insert([
+            // Insert exam records here
+        ]);
+
+        DB::table('fee')->insert([
+            // Insert fee records here
+        ]);
+    }
+
+    public function down()
+    {
+        Schema::dropIfExists('courses');
+        Schema::dropIfExists('students');
+        Schema::dropIfExists('attendance');
+        Schema::dropIfExists('exam');
+        Schema::dropIfExists('fee');
+    }
+}
